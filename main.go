@@ -16,26 +16,25 @@ type Book struct {
     Price string
 }
 
+func main() {
+	BooksScraper()
+}
 
 func BooksScraper() {
     fmt.Println("Start scraping")
-    file, err := os.Create("export.csv")
-    if err != nil {
-        log.Fatal(err)
-    }
+    
+	file, err := os.Create("export.csv")
+    HandleError(err)
     defer file.Close()
-    writer := csv.NewWriter(file)
-    defer writer.Flush()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
     headers := []string{"Title", "Price"}
     writer.Write(headers)
-    c := colly.NewCollector(
+    
+	c := colly.NewCollector(
         colly.AllowedDomains("books.toscrape.com"),
     )
-
-    // proxyUsername := "<Username>"
-    // proxyPassword := "<Password>"
-    // proxyUrl := fmt.Sprintf("http://customer-%s:%s@pr.oxylabs.io:7777", proxyUsername, proxyPassword)
-    // c.SetProxy(proxyUrl)
 
     c.OnHTML(".product_pod", func(e *colly.HTMLElement) {
         book := Book{}
@@ -59,6 +58,9 @@ func BooksScraper() {
     c.Visit("https://books.toscrape.com/")
 }
 
-func main() {
-    BooksScraper()
+func HandleError(err error){
+	if err != nil {
+		fmt.Println("There was an Error In the Program")
+		log.Fatal(err)
+	}
 }
